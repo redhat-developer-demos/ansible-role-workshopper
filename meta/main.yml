@@ -1,0 +1,40 @@
+galaxy_info:
+  author: Red Hat Developers
+  description: Setup OpenShift workshop cluster with required components
+  company: Red Hat Developers
+
+  issue_tracker_url: http://github.com/redhat-developer-demos/ansible-role-workshopper/issues/tracker
+
+  license: license (Apache-2.0)
+
+  min_ansible_version: 2.9
+
+  #
+  # Provide a list of supported platforms, and for each platform a list of versions.
+  # If you don't wish to enumerate all versions for a particular platform, use 'all'.
+  # To view available platforms and versions (or releases), visit:
+  # https://galaxy.ansible.com/api/v1/platforms/
+  #
+  platforms:
+    - name: Fedora
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - OpenShift
+    - Knative
+    - Istio
+    - Serverless
+    - Camel-K
+    - Camel
+    - Kafka
+
+dependencies:
+  []
+  # List your role dependencies here, one per line. Be sure to remove the '[]' above,
+  # if you add dependencies to this list.

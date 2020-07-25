@@ -1,0 +1,11 @@
+---
+
+- debug: msg="Using Kubeconfig '{{ansible_env.K8S_AUTH_KUBECONFIG}}'"
+
+- name: Download OpenShift Clients
+  include: download_clients.yml
+  when: download_clients
+
+- name: Deploy OpenShift Serverless
+  include: deploy_serverless.yml
+  when: deploy_serverless

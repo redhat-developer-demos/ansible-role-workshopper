@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include rhdevelopers.workshopper"
+      include_role:
+        name: "rhdevelopers.workshopper"

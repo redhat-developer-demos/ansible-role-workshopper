@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-image-puller
+type: Opaque
+data:
+  IMAGES: >
+    che-broker=eclipse/che-unified-plugin-broker:v0.24;
+    che-jwt-proxy=quay.io/eclipse/che-jwtproxy:dbd0578;
+    che-theia-bin=quay.io/eclipse/che-theia-endpoint-runtime-binary:7.7.0;
+    che-theia=eclipse/che-unified-plugin-broker:v0.24;
+    che-machine-exec=quay.io/eclipse/che-machine-exec:7.7.0;
+    che-theia=quay.io/eclipse/che-theia:7.7.0;
+    tutorial-tools=quay.io/rhdevelopers/tutorial-tools:0.0.3;
+    container-tool=quay.io/rhdevelopers/container-tools:0.0.1;
+    clients=quay.io/rhdevelopers/clients:0.0.1;
+    customer=quay.io/rhdevelopers/istio-tutorial-customer;
+    customer-v1=quay.io/rhdevelopers/istio-tutorial-customer:v1;
+    preference=quay.io/rhdevelopers/istio-tutorial-preference;
+    preference-v1=quay.io/rhdevelopers/istio-tutorial-preference:v1;
+    recommendation-v1=quay.io/rhdevelopers/istio-tutorial-recommendation:v1;
+    recommendation-v2=quay.io/rhdevelopers/istio-tutorial-recommendation:v2;
+    greeter-quarkus=quay.io/rhdevelopers/knative-tutorial-greeter:quarkus;
+    prime-generator=quay.io/rhdevelopers/prime-generator:v27-quarkus;
+  DAEMONSET_NAME: "kubernetes-image-puller"
+  CACHING_INTERVAL_HOURS: "1"
+  OPENSHIFT_PROXY_URL: "ignored"
+  OIDC_PROVIDER: "ignored"
+  NAMESPACE: "rhd-workshop-infra"
+  IMPERSONATE_USERS: "ignored"
+  CACHING_MEMORY_REQUEST: "100Mi"
+  CACHING_MEMORY_LIMIT: "200Mi"
+  SERVICE_ACCOUNT_ID: "ignored"
+  SERVICE_ACCOUNT_SECRET: "ignored"
+  MULTICLUSTER: "false"

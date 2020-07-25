@@ -1,0 +1,8 @@
+---
+deploy_serverless: True
+download_clients: True
+ocp_bin_dir: "{{ansible_env.HOME}}/openshift/bin"
+ocp_version: 4.5.3
+serverless_subcription_channel: "4.5"
+knative_serving_cr: knative/cr/serving.yaml
+knative_eventing_cr: knative/cr/eventing.yaml

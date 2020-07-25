@@ -1,0 +1,45 @@
+---
+- name: Install OpenShift Serverless
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','knative/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+
+- name: "Install OpenShift Serverless::Serving"
+  include_tasks: wait_for_operator_and_sub.yml
+  vars:
+    subscription_name: knative-serving
+
+- name: Create Serving and Eventing Namespace
+  community.kubernetes.k8s:
+    state: present
+    kind: Namespace
+    name: "{{item}}"
+  with_items:
+    - 'knative-serving'
+    - 'knative-eventing'
+
+- name: Create Knative Serving
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ item | from_yaml }}"
+    wait: yes
+    wait_timeout: 180
+    wait_sleep: 10
+    wait_condition:
+      type: Ready
+  with_file: "{{knative_serving_cr}}"
+  no_log: True
+  register: kn_serving_status
+
+- name: Create Knative Eventing
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ item | from_yaml }}"
+    wait: yes
+    wait_timeout: 180
+    wait_sleep: 10
+    wait_condition:
+      type: Ready
+  no_log: True
+  with_file: "{{knative_eventing_cr}}"

@@ -1,0 +1,21 @@
+- hosts: localhost
+  connection: local
+
+  vars:
+    ocp_version: 4.5.3
+    download_clients: False
+
+  
+  vars_prompt:
+
+  - name: kubeconfig
+    prompt: "Provide the full path to KUBECONFIG"
+    private: no
+    default: "{{ansible_env.KUBECONFIG|default('/Users/kameshs/openshift/gcp/auth/kubeconfig')}}"
+    when: ansible_env.K8S_AUTH_KUBECONFIG
+
+  environment:
+    K8S_AUTH_KUBECONFIG: "{{kubeconfig}}"
+
+  roles:
+    - rhdevelopers.workshopper

@@ -1,0 +1,16 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: workshop-student
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps","services"]
+    verbs: ["get", "view"]
+  - apiGroups: ["networking.istio.io"]
+    resources: ["serviceentries","destinationrules"]
+    verbs: ["get", "view","list"]
+  # not needed - TODO check and remove
+  # - apiGroups: ["networking.internal.knative.dev"]
+  #   resources: ["clusteringresses"]
+  #   verbs: ["get", "view","list"]

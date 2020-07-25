@@ -1,0 +1,44 @@
+#!/bin/bash
+set -e
+
+_CURR_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+
+export CONFIGS_DIR="$_CURR_DIR/../config"
+export WORK_DIR="$_CURR_DIR/../work"
+
+# set kubeconfig file to allow system:admin login 
+export KUBECONFIG=${KUBECONFIG:-''}
+# Openshift user with cluster admin role
+export OPENSHIFT_ADMIN_USER=''
+# Openshift cluster admin user password
+export OPENSHIFT_ADMIN_USER_PASSWORD=''
+# Openshift server API URL
+export OPENSHIFT_API_URL=''
+# OpenShift Domain Suffix 
+export OPENSHIFT_DOMAIN_SUFFIX=''
+# Openshift User default password
+export WORKSHOP_USER_DEFAULT_PASSWORD=''
+
+### START CHE SETTINGS
+if [ $(kubectl get ns che &>/dev/null) ];
+then   
+ # The Che URL
+ export CHE_URL="http://$(oc get routes -n che che -o yaml | yq r - 'spec.host')"
+ # The Che Keycloak URL
+ export CHE_KEYCLOAK_URL="http://$(oc get routes -n che keycloak -o yaml | yq r - 'spec.host')"
+ # The DEVFILE to use for workshop, it could be relative path or raw github path
+ export WORKSHOP_DEVFILE_URL=''
+fi
+### END CHE SETTINGS
+
+### START USER COUNT
+# The Number of users to create
+export USERS_FROM=1
+export USERS_TO=40
+export USER_PREFIX='user'
+### END USER COUNT
+
+# WORKSHOP USER PROJECT CONFIG
+# The space delimited project names that will be created
+export PROJECTS='tutorial'
+## END WORKSHOP USER PROJECT CONFIG

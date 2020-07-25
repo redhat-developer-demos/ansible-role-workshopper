@@ -1,0 +1,63 @@
+---   
+- name: Make sure destination exists
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: 0755
+  with_items:
+    - "{{ocp_bin_dir}}"
+    - "/tmp/openshift"
+  tags:
+    - download
+
+- name: Set Linux Downloadables
+  set_fact:
+    download_files:
+      - "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-{{ocp_version}}.tar.gz"
+      - "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux-{{ocp_version}}.tar.gz"
+      # - "https://mirror.openshift.com/pub/openshift-v4/clients/odo/latest/odo-linux-amd64.tar.gz"
+  when: ansible_os_family == "RedHat" or ansible_os_family == "CentOS" or ansible_os_family == "Debian"
+  tags:
+    - download
+
+- name: Set macOS Downloadables
+  set_fact:
+    download_files:
+      - "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-mac-{{ocp_version}}.tar.gz"
+      - "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-mac-{{ocp_version}}.tar.gz"
+      # - "https://mirror.openshift.com/pub/openshift-v4/clients/odo/latest/odo-darwin-amd64.tar.gz"
+  when: ansible_os_family == "Darwin"
+  tags:
+    - download
+
+- name: Set Windows Downloadables
+  set_fact:
+    download_files:
+      - "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-windows-{{ocp_version}}.zip"
+      # - "https://mirror.openshift.com/pub/openshift-v4/clients/odo/latest/odo-windows-amd64.exe.tar.gz"
+  when: ansible_os_family == "Windows"
+  tags:
+    - download
+
+- name: Dowload Clients
+  get_url:
+    url: "{{item}}"
+    dest: "/tmp/openshift/{{item|basename}}"
+    checksum: "sha256:https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/sha256sum.txt"
+    force: no
+  loop: "{{download_files}}"
+  register: ocp_clients_download
+  tags:
+    - download
+
+- name: Extract Clients
+  unarchive:
+    src: "{{item}}"
+    dest: "{{ocp_bin_dir}}"
+    mode: 0755
+    exclude:
+      - "README.md"
+  with_fileglob: 
+    - /tmp/openshift/*.tar.gz
+  tags:
+    - download
