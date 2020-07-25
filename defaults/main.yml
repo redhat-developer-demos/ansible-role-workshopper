@@ -12,8 +12,8 @@ users:
 # Serverless(Knative)
 deploy_serverless: True
 serverless_subcription_channel: "4.5"
-knative_serving_cr: knative/cr/serving.yaml
-knative_eventing_cr: knative/cr/eventing.yaml
+knative_serving_cr: serverless/cr/serving.yaml
+knative_eventing_cr: serverless/cr/eventing.yaml
 # Pipelines
 deploy_Pipelines: False
 #Strimzi Kafka
@@ -27,7 +27,7 @@ deploy_camel_k: False
 # Red Hat Servicemesh
 deploy_servicemesh: False
 servicemesh_es_channel: 4.5
-servicemesh_cr: servicemesh/control_plane.yaml
+servicemesh_cr: servicemesh/cr.yaml
 servicemesh_members:
   create: False
   prefix: tutorial

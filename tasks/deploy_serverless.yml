@@ -2,7 +2,7 @@
 - name: Install OpenShift Serverless
   community.kubernetes.k8s:
     state: present
-    definition: "{{lookup('template','knative/subscription.yaml.j2') | from_yaml }}"
+    definition: "{{lookup('template','serverless/subscription.yaml.j2') | from_yaml }}"
     wait: yes
 
 - name: "Install OpenShift Serverless::Serving/Eventing"
