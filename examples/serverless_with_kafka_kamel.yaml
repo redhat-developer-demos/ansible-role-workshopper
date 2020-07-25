@@ -1,0 +1,41 @@
+- hosts: localhost
+  connection: local
+
+  vars:
+    ocp_version: 4.5.3
+    download_clients: True
+    deploy_serverless: True
+    deploy_kafka: True
+    deploy_camel_k: True
+    users:
+      create: True
+      start: 0
+      end: 0
+
+  vars_prompt:
+    - name: kubeconfig
+      prompt: 'Provide the full path to KUBECONFIG'
+      private: no
+      default: "{{ansible_env.KUBECONFIG|default('/Users/kameshs/openshift/gcp/auth/kubeconfig')}}"
+      when: ansible_env.K8S_AUTH_KUBECONFIG
+
+    - name: cloud_profile
+      prompt: 'Enter the OpenShift target cloud e.g. gcp, aws, azr'
+      private: no
+      default: 'gcp'
+
+    - name: ocpadmin_password
+      prompt: "OpenShift Admin 'ocpadmin' Password"
+      private: no
+      default: 'r3dh4t1!'
+
+    - name: user_password
+      prompt: 'Default User Password'
+      private: no
+      default: 'pas5word!'
+
+  environment:
+    K8S_AUTH_KUBECONFIG: '{{kubeconfig}}'
+
+  roles:
+    - rhdevelopers.workshopper

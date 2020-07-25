@@ -1,0 +1,200 @@
+# Ansible role for RedHat Developers Workshop
+
+Ansible to configure [OpenShift](https://try.openshift.com) cluster for Red Hat Developer Workshops and Demos.
+
+The role can also be used to install and configure:
+
+- [ ] [OpenShift Serverless](https://knative.dev), both Serving and Eventing
+
+- [ ] [OpenShift Pipelines](https://tekton.dev)
+
+- [ ] [RedHat Servicemesh](https://maistra.io)
+
+- [ ] [Strimzi Kafka](https://strimzi.io)
+
+- [ ] [Skupper](https://skupper.io)
+
+- [ ] [Apache Camel-K](https://camel.apache.org/docs/#camel-k)
+
+- [ ] [Eclipse Che](https://knative.dev)
+
+== Requirements
+
+
+- https://www.docker.com/products/docker-desktop[Docker Desktop] or Docker for Linux
+
+- https://ansible.com[Ansible >= v2.9.10]
+
+- https://try.openshift.com[OpenShift 4.5+ Cluster]
+
+[source,bash]
+----
+pip3 install \
+  -r https://raw.githubusercontent.com/kameshsampath/ansible-role-kind/master/requirements.txt
+ansible-galaxy role install kameshsampath.kind
+ansible-galaxy collection install community.kubernetes
+----
+
+[NOTE]: For Windows its recommended to use Windows Subsystem for Linux (WSL)
+
+== Role Variables
+
+[%header,cols="1,2,1"]
+.Role Variables
+|===
+| Variable Name| Description | Default value
+
+| download_clients
+| Download OpenShift clients oc, kubectl and openshift-install
+| True
+
+|ocp_bin_dir
+| Directory to download and install Openshift clients. The directory will be created if not exist
+| $HOME/openshift/bin
+
+|ocp_version
+|The minimum OpenShift version to use 
+|4.5.3
+
+| deploy_serverless 
+| Deploy OpenShift Serverless 
+| True
+
+| serverless_subcription_channel 
+| The Operator Channel for the Serverless Subscription 
+| 4.5
+
+| knative_serving_cr
+| The Knative Serving Custom Resource
+| serverless/cr/serving.yaml
+
+| knative_eventing_cr
+| The Knative Eventing Custom Resource
+| serverless/cr/eventing.yaml
+
+| deploy_pipelines 
+| Deploy OpenShift Pipelines 
+| False 
+
+| deploy_servicemesh 
+| Deploy OpenShift Pipelines 
+| False 
+
+| servicemesh_es_channel 
+| The Operator Channel for the Red Hat Elastic Search Subscription 
+| 4.5
+
+| servicemesh_cr
+| The Red Hat Servicemesh Custom resource
+| servicemesh/cr.yaml
+
+| servicemesh_members
+| Create and add projects Servicemesh
+a|
+[source,yaml]
+----
+servicemesh_members:
+  create: False
+  prefix: tutorial
+  start: 0
+  end: 10
+----
+
+| deploy_kafka 
+| Deploy Apache Kafka using Strimzi  
+| False 
+
+| kakfa_cluster_name 
+| The Apache Kafka cluster name  
+| my-cluster 
+
+| kakfa_cluster_namespace
+| The Apache Kafka cluster namespace
+| kafka
+
+| strimzi_kafka_cr 
+| Apache Kafka Strimzi Custom Resource
+| kafka/cr.yaml
+
+| knative_eventing_kafka_cr 
+| Knative Eventing KafkaSource Custom Resource
+| kafka/eventing/cr.yaml
+
+| deploy_camel_k 
+| Deploy Apache Camel-K
+| False 
+
+| deploy_che 
+| Deploy Eclipse Che
+| False 
+
+| eclipse_che_cr
+| The Eclipse Che Custom resource
+| che/cr.yaml
+
+| deploy_acm 
+| Deploy RedHat Advanced Cluster Management for Kubernetes
+| False 
+
+| users
+| Create OpenShift users and Cluster Administrator
+a|
+[source,yaml]
+----
+users:
+  create: True
+  prefix: user
+  start: 0
+  end: 10
+  ocpadmin_username: ocpadmin
+----
+[NOTE]
+====
+Setting start and end to `0` will not create any users except `cluster-admin`
+====
+|===
+
+== Example Playbooks
+
+The https://github.com/redhat-developer-demos/ansible-role-workshopper/tree/master/examples[examples] directory has various playbook examples to get started using this role
+
+== License
+
+https://github.com/redhat-developer-demos/ansible-role-workshopper/tree/master/LICENSE[Apache v2]
+
+== Author Information
+
+mailto:kamesh.sampath@hotmail.com[Kamesh Sampath]
+
+== Issues
+
+https://github.com/redhat-developer-demos/ansible-role-workshopper/issues[Issues]
+
+== Testing
+
+= Requirements
+
+- https://www.vagrantup.com[Vagrant]
+
+- Extra Python modules
+
+[source,bash]
+----
+pip3 install \
+  -r https://raw.githubusercontent.com/kameshsampath/ansible-role-kind/master/molecule/requirements.txt
+----
+
+All tests are built using [molecule](https://molecule.readthedocs.io/en/latest/index.html) with following scenarios:
+
+* Knative
+```shell
+molecule test  -s deploy_knative
+```
+* Clean machine Test
+
+This test run on clean vm (Centos8) using vagrant. It will run all the tests end to end and verify the same.
+
+```shell
+molecule test  -s vm
+```
+
