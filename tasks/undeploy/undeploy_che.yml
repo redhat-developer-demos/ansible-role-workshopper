@@ -1,0 +1,32 @@
+---
+- name: Delete Eclipse Che Workspace
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{ item | from_yaml }}"
+    wait: yes
+    wait_timeout: 180
+    wait_sleep: 10
+    wait_condition:
+      type: Ready
+      status: False
+  with_file: "{{eclipse_che_cr}}"
+  no_log: True
+  register: eclipse_che_status
+
+- name: "Uninstall Operator::Eclipse Che"
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{lookup('template','che/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+
+- name: "Uninstall Operator Group::Eclipse Che"
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{lookup('template','che/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+
+- name: Create Eclipse Che Namespace
+  community.kubernetes.k8s:
+    state: absent
+    kind: Namespace
+    name: che

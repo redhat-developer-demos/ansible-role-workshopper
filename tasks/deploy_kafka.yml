@@ -1,0 +1,60 @@
+---
+- name: "Install Operator::Strimzi Kafka" 
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','kafka/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+
+- name: "Install Strimzi::Kafka"
+  include_tasks: utils/wait_for_operator_and_sub.yml
+  vars:
+    subscription_name: strimzi-kafka-operator
+
+- name: "Create Kafka Namespace"
+  community.kubernetes.k8s:
+    state: present
+    kind: Namespace
+    name: "{{kakfa_cluster_namespace}}"
+
+- name: "Create Strimzi Kafka cluster::{{kakfa_cluster_name}}"
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ item | from_yaml }}"
+    wait: yes
+    wait_timeout: 180
+    wait_sleep: 10
+    wait_condition:
+      type: Ready
+  no_log: True
+  register: strimzi_kafka_status
+  with_file:
+   - "{{strimzi_kafka_cr}}"
+
+# Knative Eventing Kafka Sources
+- name: "Install Operator::Knative Eventing KafkaSource"
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','kafka/eventing/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+  when: deploy_serverless
+
+- name: "Install Knative Eventing KafkaSource"
+  include_tasks: utils/wait_for_operator_and_sub.yml
+  vars:
+    subscription_name: knative-kafka-operator
+  when: deploy_serverless
+
+- name: "Create Knative Eventing KafkaSource"
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ item | from_yaml }}"
+    wait: yes
+    wait_timeout: 180
+    wait_sleep: 10
+    wait_condition:
+      type: Ready
+  no_log: True
+  register: kn_eventing_kafka_status
+  with_file:
+   - "{{knative_eventing_kafka_cr}}"
+  when: deploy_serverless

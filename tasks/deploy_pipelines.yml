@@ -1,0 +1,12 @@
+---
+- name: Install Operator::OpenShift Pipelines
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','pipelines/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+
+- name: Install OpenShift Pipelines
+  include_tasks: utils/wait_for_operator_and_sub.yml
+  vars:
+    subscription_name: openshift-pipelines-operator-rh
+

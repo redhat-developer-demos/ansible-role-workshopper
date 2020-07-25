@@ -1,0 +1,51 @@
+---
+- name: "Create Strimzi Kafka cluster::{{kakfa_cluster_name}}"
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{ item | from_yaml }}"
+    wait: yes
+    wait_timeout: 180
+    wait_sleep: 10
+    wait_condition:
+      type: Ready
+      status: False
+  no_log: True
+  register: strimzi_kafka_status
+  with_file:
+   - "{{strimzi_kafka_cr}}"
+
+- name: "Delete Knative Eventing KafkaSource"
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{ item | from_yaml }}"
+    wait: yes
+    wait_timeout: 180
+    wait_sleep: 10
+    wait_condition:
+      type: Ready
+      state: False
+  no_log: True
+  register: kn_eventing_kafka_status
+  with_file:
+   - "{{knative_eventing_kafka_cr}}"
+  when: undeploy_serverless
+
+# Knative Eventing Kafka Sources
+- name: "UnInstall Operator::Knative Eventing KafkaSource"
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{lookup('template','kafka/eventing/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+  when: undeploy_serverless
+
+- name: "Uninstall Operator::Strimzi Kafka" 
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{lookup('template','kafka/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+
+- name: "Delete Kafka Namespace"
+  community.kubernetes.k8s:
+    state: absent
+    kind: Namespace
+    name: "{{kakfa_cluster_namespace}}"

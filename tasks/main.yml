@@ -10,6 +10,26 @@
   include_tasks: users.yml
   when: users.create
 
+- name: Deploy OpenShift Pipelines
+  include_tasks: deploy_pipelines.yml
+  when: deploy_pipelines
+
 - name: Deploy OpenShift Serverless
   include_tasks: deploy_serverless.yml
   when: deploy_serverless
+
+- name: Deploy RedHat Servicemesh
+  include_tasks: deploy_servicemesh.yml
+  when: deploy_servicemesh
+
+- name: Deploy Strimzi Kafka
+  include_tasks: deploy_kafka.yml
+  when: deploy_kafka
+
+- name: Deploy Camel K
+  include_tasks: deploy_camel_k.yml
+  when: deploy_kamel
+
+- name: Deploy Eclipse Che
+  include_tasks: deploy_che.yml
+  when: deploy_che

@@ -1,14 +1,40 @@
 ---
-deploy_serverless: True
+ocp_bin_dir: "{{ansible_env.HOME}}/openshift/bin"
+ocp_version: 4.5.3
 download_clients: True
+# Users to create
 users:
   create: True
   prefix: user
   start: 0
   end: 10
   ocpadmin_username: ocpadmin
-ocp_bin_dir: "{{ansible_env.HOME}}/openshift/bin"
-ocp_version: 4.5.3
+# Serverless(Knative)
+deploy_serverless: True
 serverless_subcription_channel: "4.5"
 knative_serving_cr: knative/cr/serving.yaml
 knative_eventing_cr: knative/cr/eventing.yaml
+# Pipelines
+deploy_Pipelines: False
+#Strimzi Kafka
+deploy_kafka: False
+kakfa_cluster_name: my-cluster
+kakfa_cluster_namespace: kafka
+strimzi_kafka_cr: kafka/cr.yaml
+knative_eventing_kafka_cr: kafka/eventing/cr.yaml
+# Apache Camel-k
+deploy_camel_k: False
+# Red Hat Servicemesh
+deploy_servicemesh: False
+servicemesh_es_channel: 4.5
+servicemesh_cr: servicemesh/control_plane.yaml
+servicemesh_members:
+  create: False
+  prefix: tutorial
+  start: 0
+  end: 10
+# ACM
+deploy_acm: False
+# Eclipse Che
+deploy_che: False
+eclipse_che_cr: che/cr.yaml

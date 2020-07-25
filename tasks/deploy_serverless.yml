@@ -5,8 +5,8 @@
     definition: "{{lookup('template','knative/subscription.yaml.j2') | from_yaml }}"
     wait: yes
 
-- name: "Install OpenShift Serverless::Serving"
-  include_tasks: wait_for_operator_and_sub.yml
+- name: "Install OpenShift Serverless::Serving/Eventing"
+  include_tasks: utils/wait_for_operator_and_sub.yml
   vars:
     subscription_name: knative-serving
 

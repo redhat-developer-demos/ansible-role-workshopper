@@ -1,0 +1,25 @@
+---
+- name: "Install Operator::Apache Camel K"
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','kamel/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+
+- name: "Install Apache::Camel K"
+  include_tasks: utils/wait_for_operator_and_sub.yml
+  vars:
+    subscription_name: camel-k
+
+# Knative Eventing Camel Source
+- name: "Install Opertator::Knative Eventing CamelSource"
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','kamel/eventing/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+  when: deploy_serverless
+
+- name: "Install Knative Eventing  CamelSource"
+  include_tasks: utils/wait_for_operator_and_sub.yml
+  vars:
+    subscription_name: knative-camel-operator
+  when: deploy_serverless

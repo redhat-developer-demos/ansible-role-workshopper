@@ -1,0 +1,14 @@
+---
+# Knative Eventing Camel Source
+- name: "Uninstall Opertator::Knative Eventing CamelSource"
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{lookup('template','kamel/eventing/subscription.yaml.j2') | from_yaml }}"
+    wait: yes
+  when: undeploy_serverless
+
+- name: "Uninstall Operator::Apache Camel K"
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{lookup('template','kamel/subscription.yaml.j2') | from_yaml }}"
+    wait: yes

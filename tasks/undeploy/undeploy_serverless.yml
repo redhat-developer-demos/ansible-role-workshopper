@@ -1,0 +1,43 @@
+---
+
+- name: Delete Knative Serving
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{ item | from_yaml }}"
+    wait: yes
+    wait_timeout: 180
+    wait_sleep: 10
+    wait_condition:
+      type: Ready
+      status: False
+  with_file: "{{knative_serving_cr}}"
+  no_log: True
+  register: kn_serving_status
+
+- name: Delete Knative Eventing
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{ item | from_yaml }}"
+    wait: yes
+    wait_timeout: 180
+    wait_sleep: 10
+    wait_condition:
+      type: Ready
+      status: False
+  no_log: True
+  with_file: "{{knative_eventing_cr}}"
+ 
+- name: Delete Serving and Eventing Namespace
+  community.kubernetes.k8s:
+    state: absent
+    kind: Namespace
+    name: "{{item}}"
+  with_items:
+    - 'knative-serving'
+    - 'knative-eventing'
+
+- name: Uninstall OpenShift Serverless
+  community.kubernetes.k8s:
+    state: absent
+    definition: "{{lookup('template','knative/subscription.yaml.j2') | from_yaml }}"
+    wait: yes

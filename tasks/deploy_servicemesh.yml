@@ -1,0 +1,89 @@
+---
+- name: Create openshift-operators-redhat Namespace
+  community.kubernetes.k8s:
+    state: present
+    kind: Namespace
+    name: "openshift-operators-redhat"
+
+- name: "Install Red Hat Servicemesh Components::ElasticSearch"
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','servicemesh/elasticsearch.yaml.j2') | from_yaml }}"
+    wait: yes
+
+- name: "Wait for Elastic Search Subscription"
+  include_tasks: utils/wait_for_operator_and_sub.yml
+  vars:
+    subscription_name: elasticsearch-operator
+    sub_namespace: "openshift-operators-redhat"
+
+- name: "Install Red Hat Servicemesh Components::Jaeger"
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','servicemesh/jaeger.yaml.j2') | from_yaml }}"
+    wait: yes
+
+- name: "Wait for Jaeger Subscription"
+  include_tasks: utils/wait_for_operator_and_sub.yml
+  vars:
+    subscription_name: jaeger-product
+
+- name: "Install Red Hat Servicemesh Components::Kiali"
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','servicemesh/kiali.yaml.j2') | from_yaml }}"
+    wait: yes
+
+- name: "Wait for Kiali Subscription"
+  include_tasks: utils/wait_for_operator_and_sub.yml
+  vars:
+    subscription_name: kiali-ossm
+
+- name: "Install Red Hat Servicemesh"
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','servicemesh/servicemesh.yaml.j2') | from_yaml }}"
+    wait: yes
+  
+- name: "Wait for Red Hat Servicemesh Subscription"
+  include_tasks: utils/wait_for_operator_and_sub.yml
+  vars:
+    subscription_name: servicemeshoperator
+
+- name: Create istio-system Namespace
+  community.kubernetes.k8s:
+    state: present
+    kind: Namespace
+    name: "istio-system"
+
+- name: Create Istio Control Plane
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ item | from_yaml }}"
+    wait: yes
+    wait_timeout: 180
+    wait_sleep: 10
+    wait_condition:
+      type: Ready
+  with_file: "{{servicemesh_cr}}"
+  no_log: True
+  register: istio_control_plane_status
+
+- name: Create ServiceMesh projects
+  community.kubernetes.k8s:
+    state: present
+    name: "{{item}}"
+  with_sequence: 
+    start="{{servicemesh_members.start}}" end="{{servicemesh_members.end}}" format="{{servicemesh_members.prefix}}%02x"
+  when: servicemesh_members.create
+
+- name: Add Projects to Servicemesh Member Roll
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{lookup('template','servicemesh/service-member-roll.yaml.j2') | from_yaml }}"
+    wait: yes
+    no_log: True
+    wait_condition:
+      type: Ready
+  when: servicemesh_members.create
+  
