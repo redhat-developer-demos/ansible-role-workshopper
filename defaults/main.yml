@@ -1,6 +1,12 @@
 ---
 deploy_serverless: True
 download_clients: True
+users:
+  create: True
+  prefix: user
+  start: 0
+  end: 10
+  ocpadmin_username: ocpadmin
 ocp_bin_dir: "{{ansible_env.HOME}}/openshift/bin"
 ocp_version: 4.5.3
 serverless_subcription_channel: "4.5"

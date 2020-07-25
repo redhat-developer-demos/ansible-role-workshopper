@@ -1,0 +1,76 @@
+---
+- set_fact:
+    workshopper_home: "{{ansible_env.HOME}}/.workshopper"
+    htpasswdidp_secret_name: htpasswdidp-secret
+    htpasswdidp_name: workshopper
+
+- name: Create Cloud Profile Directory
+  file:
+    path: "{{workshopper_home}}/{{cloud_profile}}"
+    state: directory
+
+- name: Generate Htpass file
+  htpasswd:
+      path: "{{workshopper_home}}/{{cloud_profile}}/htpass.users"
+      name: "{{item}}"
+      password: "{{user_password}}"
+  with_sequence:
+    start="{{users.start}}" end="{{users.end}}" format="{{users.prefix}}%02x"
+ 
+- name: Add OpenShift Admin user
+  htpasswd:
+      path: "{{workshopper_home}}/{{cloud_profile}}/htpass.users"
+      name: "{{users.ocpadmin_username}}"
+      password: "{{ocpadmin_password}}"
+
+- name: Remove  {{htpasswdidp_secret_name}} if it exists"
+  community.kubernetes.k8s:
+    state: absent    
+    api_version: v1
+    kind: Secret
+    name:  "{{htpasswdidp_secret_name}}"
+    namespace: openshift-config
+
+- name: "Create  {{htpasswdidp_secret_name}}"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{htpasswdidp_secret_name}}"
+        namespace: openshift-config
+      data:
+        htpasswd: "{{item|b64encode}}"
+  no_log: True
+  with_file: "{{workshopper_home}}/{{cloud_profile}}/htpass.users"
+
+- name: "Add {{htpasswdidp_name}} Auth Provider"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: config.openshift.io/v1
+      kind: OAuth
+      metadata:
+        name: cluster
+        namespace: openshift-config
+      spec:
+        identityProviders:
+         - name: "{{htpasswdidp_name}}"
+           type: HTPasswd
+           mappingMethod: claim 
+           htpasswd:
+             fileData:
+               name: "{{htpasswdidp_secret_name}}"
+
+- name: Wait for the Auth provider rollout
+  pause:
+    seconds: 30
+
+- name: "Remove default kubeadmin user"
+  community.kubernetes.k8s:
+    state: absent    
+    api_version: v1
+    kind: Secret
+    name:  "kubeadmin"
+    namespace: kube-system
